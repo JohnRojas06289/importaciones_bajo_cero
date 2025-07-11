@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import { apiService } from './services/api';
 
+// Importar páginas
+import Inventory from './pages/Inventory';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
+
 // Componente Principal POS
 function POSSystem() {
   // Estados principales
@@ -466,10 +471,11 @@ function POSSystem() {
   );
 }
 
-// Componente principal App
+// Componente principal App con navegación
 function App() {
   const [backendStatus, setBackendStatus] = useState('checking');
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState('pos');
 
   useEffect(() => {
     // Verificar conectividad del backend
@@ -488,6 +494,22 @@ function App() {
 
     checkBackend();
   }, []);
+
+  // Función para renderizar la página actual
+  const renderCurrentPage = () => {
+    switch(currentPage) {
+      case 'pos':
+        return <POSSystem />;
+      case 'inventory':
+        return <Inventory />;
+      case 'reports':
+        return <Reports />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <POSSystem />;
+    }
+  };
 
   // Mostrar estado de carga
   if (backendStatus === 'checking') {
@@ -529,7 +551,76 @@ function App() {
           ⚠️ {error}
         </div>
       )}
-      <POSSystem />
+      
+      {/* Barra de navegación */}
+      <nav style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '1rem 2rem',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          maxWidth: '1400px',
+          margin: '0 auto'
+        }}>
+          <h1 style={{
+            color: 'white',
+            margin: 0,
+            fontSize: '1.5rem',
+            fontWeight: 'bold'
+          }}>
+            🧥 Importaciones Bajo Cero
+          </h1>
+          
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            {[
+              { key: 'pos', label: '🛒 Punto de Venta', icon: '🛒' },
+              { key: 'inventory', label: '📦 Inventario', icon: '📦' },
+              { key: 'reports', label: '📊 Reportes', icon: '📊' },
+              { key: 'settings', label: '⚙️ Configuración', icon: '⚙️' }
+            ].map(({ key, label, icon }) => (
+              <button
+                key={key}
+                onClick={() => setCurrentPage(key)}
+                style={{
+                  background: currentPage === key ? 'rgba(255,255,255,0.2)' : 'transparent',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '25px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '500',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== key) {
+                    e.target.style.background = 'rgba(255,255,255,0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== key) {
+                    e.target.style.background = 'transparent';
+                  }
+                }}
+              >
+                <span>{icon}</span>
+                <span>{label.split(' ')[1]}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Contenido de la página actual */}
+      <main style={{ minHeight: 'calc(100vh - 80px)' }}>
+        {renderCurrentPage()}
+      </main>
     </div>
   );
 }
