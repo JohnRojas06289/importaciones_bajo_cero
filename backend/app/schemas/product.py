@@ -47,7 +47,7 @@ class ProductVariantBase(BaseModel):
     size_order: int = 0
     color: str = Field(..., min_length=1, max_length=50)
     color_code: str = Field(..., min_length=1, max_length=10)
-    color_hex: Optional[str] = Field(None, regex=r'^#[0-9A-Fa-f]{6}$')
+    color_hex: Optional[str] = Field(None, pattern=r'^#[0-9A-Fa-f]{6}$')
     price: float = Field(..., gt=0)
     cost: float = Field(..., gt=0)
     wholesale_price: Optional[float] = None

@@ -6,7 +6,7 @@ from datetime import datetime
 # Esquemas de ubicaciones
 class LocationBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    type: str = Field(..., regex=r'^(display|storage|reserve)$')
+    type: str = Field(..., pattern=r'^(display|storage|reserve)$')
     section: Optional[str] = Field(None, max_length=50)
     shelf_code: Optional[str] = Field(None, max_length=20)
     is_visible_to_customer: bool = True
@@ -78,7 +78,7 @@ class InventoryResponse(InventoryBase):
 # Esquemas de movimientos de inventario
 class InventoryMovementBase(BaseModel):
     inventory_id: int
-    movement_type: str = Field(..., regex=r'^(sale|purchase|transfer|adjustment|return)$')
+    movement_type: str = Field(..., pattern=r'^(sale|purchase|transfer|adjustment|return)$')
     quantity_change: int = Field(..., ne=0)  # No puede ser cero
     reference_id: Optional[int] = None
     reference_type: Optional[str] = None
@@ -118,7 +118,7 @@ class ReservationUpdate(BaseModel):
     customer_email: Optional[str] = None
     expires_at: Optional[datetime] = None
     notes: Optional[str] = None
-    status: Optional[str] = Field(None, regex=r'^(active|completed|cancelled|expired)$')
+    status: Optional[str] = Field(None, pattern=r'^(active|completed|cancelled|expired)$')
 
 class ReservationResponse(ReservationBase):
     id: int
@@ -230,7 +230,7 @@ class InventoryReportResponse(BaseModel):
 # Esquemas para alertas
 class StockAlert(BaseModel):
     alert_type: str  # "low_stock", "out_of_stock", "overstocked"
-    severity: str = Field(..., regex=r'^(low|medium|high|critical)$')
+    severity: str = Field(..., pattern=r'^(low|medium|high|critical)$')
     inventory_id: int
     variant_id: int
     product_name: str
@@ -250,9 +250,9 @@ class StockAlertsResponse(BaseModel):
 # Esquemas para sistema LED
 class LEDControlRequest(BaseModel):
     location_ids: List[int]
-    action: str = Field(..., regex=r'^(on|off|blink|pulse)$')
+    action: str = Field(..., pattern=r'^(on|off|blink|pulse)$')
     duration_seconds: Optional[int] = Field(None, gt=0, le=300)
-    color: Optional[str] = Field(None, regex=r'^(red|green|blue|yellow|white|purple)$')
+    color: Optional[str] = Field(None, pattern=r'^(red|green|blue|yellow|white|purple)$')
 
 class LEDControlResponse(BaseModel):
     success: bool

@@ -4,12 +4,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from .config import settings
 
-# Crear engine
+# Crear engine para SQLite
 engine = create_engine(
     settings.database_url,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
+    connect_args={"check_same_thread": False},  # Solo para SQLite
+    echo=settings.debug  # Mostrar SQL queries en desarrollo
 )
 
 # Crear SessionLocal

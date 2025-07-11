@@ -247,7 +247,7 @@ async def search_inventory(
 @router.get("/alerts", response_model=StockAlertsResponse)
 async def get_stock_alerts(
     location_id: Optional[int] = None,
-    severity: Optional[str] = Query(None, regex=r'^(low|medium|high|critical)$'),
+    severity: Optional[str] = Query(None, pattern=r'^(low|medium|high|critical)$'),
     db: Session = Depends(get_db)
 ):
     """Obtener alertas de stock"""

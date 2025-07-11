@@ -190,7 +190,7 @@ async def get_dashboard_data(
 async def get_sales_summary(
     start_date: datetime,
     end_date: datetime,
-    group_by: str = Query("day", regex=r'^(hour|day|week|month)$'),
+    group_by: str = Query("day", pattern=r'^(hour|day|week|month)$'),
     category: Optional[str] = None,
     cashier_id: Optional[str] = None,
     db: Session = Depends(get_db)
@@ -593,7 +593,7 @@ async def get_inventory_movements_report(
 async def export_sales_data(
     start_date: datetime,
     end_date: datetime,
-    format: str = Query("json", regex=r'^(json|csv)$'),
+    format: str = Query("json", pattern=r'^(json|csv)$'),
     db: Session = Depends(get_db)
 ):
     """Exportar datos de ventas"""
