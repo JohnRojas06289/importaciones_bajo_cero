@@ -1,0 +1,37 @@
+# Incluir requirements base
+-r requirements.txt
+
+# Testing avanzado
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+factory-boy==3.3.0
+faker==20.1.0
+
+# Linting y formateo
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Pre-commit hooks
+pre-commit==3.6.0
+
+# Documentación
+mkdocs==1.5.3
+mkdocs-material==9.4.8
+
+# Debugging
+ipdb==0.13.13
+memory-profiler==0.61.0
+
+# Development server
+watchdog==3.0.0
+
+# Database management
+pgcli==4.0.1
+
+# API testing
+httpie==3.2.2
+
+# Load testing
+locust==2.17.0

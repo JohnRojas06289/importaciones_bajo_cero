@@ -1,0 +1,57 @@
+# FastAPI y dependencias principales
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Base de datos
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Cache y Redis
+redis==5.0.1
+hiredis==2.2.3
+
+# Autenticación y seguridad
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# CORS y middleware
+python-cors==1.7.0
+
+# Validación y utilidades
+email-validator==2.1.0
+phonenumbers==8.13.26
+
+# Fecha y tiempo
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Archivos y procesamiento
+python-barcode==0.15.1
+pillow==10.1.0
+qrcode[pil]==7.4.2
+
+# Logging y monitoreo
+structlog==23.2.0
+rich==13.7.0
+
+# Desarrollo y testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Exportación de datos
+openpyxl==3.1.2
+pandas==2.1.4
+
+# Comunicación con hardware (opcional)
+pyserial==3.5
+paho-mqtt==1.6.1
+
+# Utilidades adicionales
+python-slugify==8.0.1
+requests==2.31.0
+aiofiles==23.2.1

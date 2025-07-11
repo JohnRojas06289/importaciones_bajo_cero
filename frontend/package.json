@@ -1,0 +1,89 @@
+{
+  "name": "sistema-inventario-frontend",
+  "version": "1.0.0",
+  "description": "Frontend para Sistema de Inventario y Ventas - Almacén de Ropa",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.5.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "react-router-dom": "^6.20.1",
+    "axios": "^1.6.2",
+    "tailwindcss": "^3.3.6",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "clsx": "^2.0.0",
+    "date-fns": "^2.30.0",
+    "recharts": "^2.8.0",
+    "react-hot-toast": "^2.4.1",
+    "react-hook-form": "^7.48.2",
+    "@hookform/resolvers": "^3.3.2",
+    "yup": "^1.4.0",
+    "react-query": "^3.39.3",
+    "zustand": "^4.4.7",
+    "react-barcode-reader": "^0.0.2",
+    "html5-qrcode": "^2.3.8",
+    "qrcode": "^1.5.3",
+    "jspdf": "^2.5.1",
+    "html2canvas": "^1.4.1",
+    "react-to-print": "^2.14.15",
+    "react-virtualized": "^9.22.5",
+    "lodash": "^4.17.21",
+    "currency.js": "^2.0.4",
+    "react-spring": "^9.7.3",
+    "framer-motion": "^10.16.5",
+    "react-confetti": "^6.1.0",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/qrcode": "^1.5.5",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "prettier": "^3.1.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css,md}",
+    "analyze": "npm run build && npx bundle-analyzer build/static/js/*.js"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "prettier"
+    ],
+    "rules": {
+      "react-hooks/exhaustive-deps": "warn",
+      "no-unused-vars": "warn",
+      "no-console": "warn"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:8000"
+}

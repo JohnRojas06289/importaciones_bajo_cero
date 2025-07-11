@@ -1,0 +1,491 @@
+/* frontend/src/styles/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables CSS personalizadas */
+:root {
+  --font-family-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Consolas', monospace;
+  
+  /* Colores del sistema POS */
+  --pos-bg: #f8fafc;
+  --pos-card: #ffffff;
+  --pos-border: #e2e8f0;
+  --pos-accent: #3b82f6;
+  
+  /* Sombras personalizadas */
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Transiciones estándar */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+}
+
+/* Reset y configuración base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-family-primary);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  background-color: var(--pos-bg);
+  color: theme('colors.gray.900');
+}
+
+/* Estilos para el scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: theme('colors.gray.100');
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme('colors.gray.300');
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.gray.400');
+}
+
+/* Estilos para elementos de formulario */
+.form-input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+}
+
+.form-select {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+}
+
+.form-textarea {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+}
+
+.form-checkbox {
+  @apply h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded;
+}
+
+.form-radio {
+  @apply h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300;
+}
+
+/* Botones personalizados */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 border font-medium rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply btn border-transparent text-white bg-primary-600 hover:bg-primary-700 focus:ring-primary-500;
+}
+
+.btn-secondary {
+  @apply btn border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-primary-500;
+}
+
+.btn-success {
+  @apply btn border-transparent text-white bg-success-600 hover:bg-success-700 focus:ring-success-500;
+}
+
+.btn-warning {
+  @apply btn border-transparent text-white bg-warning-600 hover:bg-warning-700 focus:ring-warning-500;
+}
+
+.btn-danger {
+  @apply btn border-transparent text-white bg-danger-600 hover:bg-danger-700 focus:ring-danger-500;
+}
+
+.btn-ghost {
+  @apply btn border-transparent text-gray-600 bg-transparent hover:bg-gray-100 focus:ring-gray-500;
+}
+
+/* Tamaños de botones */
+.btn-sm {
+  @apply px-3 py-1.5 text-xs;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-base;
+}
+
+.btn-xl {
+  @apply px-8 py-4 text-lg;
+}
+
+/* Cards */
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+.card-header {
+  @apply px-4 py-5 border-b border-gray-200 sm:px-6;
+}
+
+.card-body {
+  @apply px-4 py-5 sm:p-6;
+}
+
+.card-footer {
+  @apply px-4 py-4 border-t border-gray-200 sm:px-6;
+}
+
+/* Animaciones personalizadas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounceGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes successCheck {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Clases de utilidad para animaciones */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+.animate-bounce-gentle {
+  animation: bounceGentle 0.6s ease-in-out;
+}
+
+.animate-scan-line {
+  animation: scanLine 2s linear infinite;
+}
+
+.animate-success-check {
+  animation: successCheck 0.5s ease-in-out;
+}
+
+/* Estilos específicos para POS */
+.pos-container {
+  @apply min-h-screen bg-pos-bg;
+}
+
+.pos-card {
+  @apply bg-white rounded-lg border border-pos-border shadow-card;
+}
+
+.pos-card:hover {
+  @apply shadow-card-hover;
+}
+
+.pos-button {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.pos-button-primary {
+  @apply pos-button bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+}
+
+.pos-button-secondary {
+  @apply pos-button bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500;
+}
+
+.pos-input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+/* Estilos para el escáner */
+.scanner-container {
+  @apply relative;
+}
+
+.scanner-overlay {
+  @apply absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center;
+}
+
+.scanner-frame {
+  @apply border-2 border-primary-500 rounded-lg;
+}
+
+.scanner-corner {
+  @apply absolute w-6 h-6 border-primary-500;
+}
+
+.scanner-corner-tl {
+  @apply top-0 left-0 border-t-2 border-l-2;
+}
+
+.scanner-corner-tr {
+  @apply top-0 right-0 border-t-2 border-r-2;
+}
+
+.scanner-corner-bl {
+  @apply bottom-0 left-0 border-b-2 border-l-2;
+}
+
+.scanner-corner-br {
+  @apply bottom-0 right-0 border-b-2 border-r-2;
+}
+
+/* Estilos para estados de stock */
+.stock-high {
+  @apply text-success-600 bg-success-100 border-success-200;
+}
+
+.stock-normal {
+  @apply text-primary-600 bg-primary-100 border-primary-200;
+}
+
+.stock-low {
+  @apply text-warning-600 bg-warning-100 border-warning-200;
+}
+
+.stock-critical {
+  @apply text-danger-600 bg-danger-100 border-danger-200;
+}
+
+.stock-out {
+  @apply text-gray-600 bg-gray-100 border-gray-200;
+}
+
+/* Efectos especiales */
+.glass {
+  @apply bg-white bg-opacity-80 backdrop-blur-sm;
+}
+
+.neumorphism {
+  background: #f0f0f3;
+  border-radius: 20px;
+  box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+}
+
+.glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.glow-success {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.glow-warning {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.glow-danger {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Utilidades para tablet */
+.tablet-friendly {
+  @apply min-h-[44px] text-base;
+}
+
+.tablet-touch {
+  @apply min-h-[48px] min-w-[48px];
+}
+
+/* Estilos para impresión */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
+}
+
+/* Modo oscuro (preparado para implementación futura) */
+@media (prefers-color-scheme: dark) {
+  .dark-mode {
+    --pos-bg: #1f2937;
+    --pos-card: #374151;
+    --pos-border: #4b5563;
+    --pos-accent: #60a5fa;
+  }
+}
+
+/* Efectos de hover mejorados */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Gradientes personalizados */
+.gradient-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+}
+
+.gradient-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.gradient-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Texto con gradiente */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Loading shimmer effect */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Estilos para accesibilidad */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus visible */
+.focus-visible:focus-visible {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+/* Estilos para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  
+  .tablet-friendly {
+    @apply min-h-[48px] text-lg;
+  }
+}
