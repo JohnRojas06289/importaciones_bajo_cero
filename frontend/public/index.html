@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="description" content="Sistema de Inventario y Ventas para Almacén de Ropa" />
+    
+    <!-- Optimización para dispositivos móviles y tablets -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="POS Almacén" />
+    
+    <!-- Prevenir zoom en inputs en dispositivos móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- Preload de fuentes para mejor rendimiento -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Título dinámico -->
+    <title>Sistema POS - Almacén de Ropa</title>
+    
+    <!-- Estilos inline críticos para evitar FOUC (Flash of Unstyled Content) -->
+    <style>
+      /* Loading spinner crítico */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e2e8f0;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        color: #64748b;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      
+      /* Ocultar el loading cuando React se monta */
+      .app-loaded #loading-screen {
+        display: none;
+      }
+      
+      /* Estilos base para evitar FOUC */
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f8fafc;
+        overflow-x: hidden;
+      }
+      
+      #root {
+        min-height: 100vh;
+      }
+      
+      /* Optimizaciones para tablets */
+      @media (max-width: 1024px) {
+        html {
+          -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+        }
+        
+        * {
+          -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    <!-- Loading screen inicial -->
+    <div id="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Cargando Sistema POS...</div>
+    </div>
+    
+    <!-- Mensaje para navegadores sin JavaScript -->
+    <noscript>
+      <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #fef2f2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        font-family: 'Inter', sans-serif;
+      ">
+        <div style="
+          background: white;
+          padding: 40px;
+          border-radius: 12px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          text-align: center;
+          max-width: 400px;
+          border: 1px solid #fecaca;
+        ">
+          <h2 style="color: #b91c1c; margin-bottom: 16px;">JavaScript Requerido</h2>
+          <p style="color: #7f1d1d; margin-bottom: 20px;">
+            Este sistema requiere JavaScript para funcionar correctamente.
+          </p>
+          <p style="color: #7f1d1d; font-size: 14px;">
+            Por favor, habilite JavaScript en su navegador y recargue la página.
+          </p>
+        </div>
+      </div>
+    </noscript>
+    
+    <!-- Contenedor principal de React -->
+    <div id="root"></div>
+    
+    <!-- Script para ocultar loading cuando React se monta -->
+    <script>
+      // Ocultar loading screen cuando React se monta
+      window.addEventListener('DOMContentLoaded', function() {
+        // Verificar cada 100ms si React se ha montado
+        const checkReactMount = setInterval(function() {
+          const root = document.getElementById('root');
+          if (root && root.children.length > 0) {
+            document.body.classList.add('app-loaded');
+            clearInterval(checkReactMount);
+          }
+        }, 100);
+        
+        // Fallback: ocultar loading después de 10 segundos máximo
+        setTimeout(function() {
+          document.body.classList.add('app-loaded');
+          clearInterval(checkReactMount);
+        }, 10000);
+      });
+      
+      // Optimizaciones para tablets
+      if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('SW registered: ', registration);
+            })
+            .catch(function(registrationError) {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
+      // Prevenir zoom con gestos en tablets
+      document.addEventListener('gesturestart', function (e) {
+        e.preventDefault();
+      });
+      
+      // Prevenir scroll horizontal no deseado
+      document.addEventListener('touchmove', function(e) {
+        if (e.scale !== 1) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      // Configuración para modo tablet/kiosko
+      if (window.location.search.includes('kiosk=true')) {
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+          // Prevenir F11, Alt+Tab, etc. en modo kiosko
+          if (e.key === 'F11' || (e.altKey && e.key === 'Tab')) {
+            e.preventDefault();
+          }
+        });
+      }
+    </script>
+    
+    <!-- 
+      Manifest para PWA (Aplicación Web Progresiva)
+      Esto permite instalar el sistema como app en tablets
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- 
+      Comentarios para el desarrollador:
+      - Este HTML está optimizado para tablets y POS
+      - Incluye loading screen para mejor UX
+      - Preparado para modo kiosko (?kiosk=true)
+      - Compatible con PWA para instalación en tablets
+    -->
+  </body>
+</html>

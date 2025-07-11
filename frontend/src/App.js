@@ -1,163 +1,298 @@
-// frontend/src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { Toaster } from 'react-hot-toast';
+// frontend/src/App.js - VERSIÓN SIMPLIFICADA PARA DEBUG
+import React, { useState, useEffect } from 'react';
 
-// Components
-import Layout from './components/layout/Layout';
-import LoadingSpinner from './components/common/LoadingSpinner';
+function App() {
+  const [backendStatus, setBackendStatus] = useState('checking');
+  const [error, setError] = useState(null);
 
-// Pages
-import POS from './pages/POS';
-import Inventory from './pages/Inventory';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
+  useEffect(() => {
+    // Probar conexión con backend
+    const checkBackend = async () => {
+      try {
+        console.log('🔍 Verificando backend...');
+        
+        // Intentar conectar con health check
+        const response = await fetch('http://localhost:8000/health');
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Backend conectado:', data);
+          setBackendStatus('connected');
+        } else {
+          console.error('❌ Backend error:', response.status);
+          setBackendStatus('error');
+          setError(`Backend respondió con status: ${response.status}`);
+        }
+      } catch (err) {
+        console.error('❌ Error de conexión:', err);
+        setBackendStatus('error');
+        setError(`Error de conexión: ${err.message}`);
+      }
+    };
 
-// Services
-import { useSystemHealth } from './hooks/useSystemHealth';
+    checkBackend();
+  }, []);
 
-// Styles
-import './App.css';
-import './styles/index.css';
-
-// Configurar React Query
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
-      staleTime: 5 * 60 * 1000, // 5 minutos
-      cacheTime: 10 * 60 * 1000, // 10 minutos
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-});
-
-function AppContent() {
-  const { isLoading, isError, error } = useSystemHealth();
-
-  // Mostrar loading mientras se verifica la conexión
-  if (isLoading) {
+  // Mostrar estado de diagnóstico
+  if (backendStatus === 'checking') {
     return (
-      <div className="min-h-screen bg-pos-bg flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-pos-text-secondary">Iniciando sistema...</p>
+      <div style={{ 
+        padding: '20px', 
+        fontFamily: 'Arial, sans-serif',
+        maxWidth: '800px',
+        margin: '0 auto'
+      }}>
+        <h1>🔍 Diagnóstico del Sistema</h1>
+        <p>Verificando conexión con backend...</p>
+        <div style={{ 
+          background: '#f0f0f0', 
+          padding: '10px', 
+          borderRadius: '5px',
+          marginTop: '20px'
+        }}>
+          <strong>Información del sistema:</strong>
+          <ul>
+            <li>Frontend: http://localhost:3000 ✅</li>
+            <li>Backend esperado: http://localhost:8000</li>
+            <li>Estado: Verificando...</li>
+          </ul>
         </div>
       </div>
     );
   }
 
-  // Mostrar error si no se puede conectar al backend
-  if (isError) {
+  if (backendStatus === 'error') {
     return (
-      <div className="min-h-screen bg-pos-bg flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="bg-danger-50 border border-danger-200 rounded-lg p-6">
-            <div className="text-danger-600 text-xl font-semibold mb-2">
-              Error de Conexión
-            </div>
-            <p className="text-danger-700 mb-4">
-              No se puede conectar con el servidor. Verifique que el backend esté funcionando.
-            </p>
-            <p className="text-sm text-danger-600">
-              {error?.message || 'Error desconocido'}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 button-primary"
-            >
-              Reintentar
-            </button>
-          </div>
+      <div style={{ 
+        padding: '20px', 
+        fontFamily: 'Arial, sans-serif',
+        maxWidth: '800px',
+        margin: '0 auto'
+      }}>
+        <h1>❌ Error de Conexión</h1>
+        <div style={{ 
+          background: '#ffe6e6', 
+          border: '1px solid #ff9999',
+          padding: '15px', 
+          borderRadius: '5px',
+          marginBottom: '20px'
+        }}>
+          <strong>Error:</strong> {error}
         </div>
+        
+        <h2>🔧 Pasos para Solucionar:</h2>
+        <ol>
+          <li>
+            <strong>Verificar que el backend esté ejecutándose:</strong>
+            <br />
+            En terminal: <code>cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000</code>
+          </li>
+          <li>
+            <strong>Verificar manualmente:</strong>
+            <br />
+            Abre: <a href="http://localhost:8000/health" target="_blank">http://localhost:8000/health</a>
+          </li>
+          <li>
+            <strong>Verificar API docs:</strong>
+            <br />
+            Abre: <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>
+          </li>
+        </ol>
+
+        <button 
+          onClick={() => window.location.reload()} 
+          style={{
+            background: '#007bff',
+            color: 'white',
+            border: 'none',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            marginTop: '20px'
+          }}
+        >
+          🔄 Reintentar
+        </button>
       </div>
     );
   }
 
+  // Si el backend funciona, mostrar sistema básico
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* Ruta principal - redirigir a POS */}
-          <Route index element={<Navigate to="/pos" replace />} />
+    <div style={{ 
+      padding: '20px', 
+      fontFamily: 'Arial, sans-serif',
+      maxWidth: '1200px',
+      margin: '0 auto'
+    }}>
+      <h1>🏪 Sistema de Inventario - Almacén de Ropa</h1>
+      
+      <div style={{ 
+        background: '#e6ffe6', 
+        border: '1px solid #99ff99',
+        padding: '15px', 
+        borderRadius: '5px',
+        marginBottom: '20px'
+      }}>
+        <strong>✅ Sistema Funcionando</strong>
+        <ul>
+          <li>Frontend: Conectado</li>
+          <li>Backend: Conectado</li>
+          <li>Base de datos: Activa</li>
+        </ul>
+      </div>
+
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr', 
+        gap: '20px',
+        marginTop: '30px'
+      }}>
+        
+        {/* Panel de Pruebas */}
+        <div style={{ 
+          border: '1px solid #ddd', 
+          padding: '20px', 
+          borderRadius: '5px' 
+        }}>
+          <h2>🧪 Panel de Pruebas</h2>
+          <p>Aquí puedes probar las funcionalidades básicas:</p>
           
-          {/* Páginas principales */}
-          <Route path="pos" element={<POS />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<Settings />} />
-          
-          {/* Ruta catch-all - redirigir a POS */}
-          <Route path="*" element={<Navigate to="/pos" replace />} />
-        </Route>
-      </Routes>
-    </Router>
+          <TestApiComponent />
+        </div>
+
+        {/* Panel de Información */}
+        <div style={{ 
+          border: '1px solid #ddd', 
+          padding: '20px', 
+          borderRadius: '5px' 
+        }}>
+          <h2>📋 Información del Sistema</h2>
+          <ul>
+            <li><strong>Categorías:</strong> Chaquetas, Gorras</li>
+            <li><strong>Códigos cortos:</strong> CH-001-M-NEG</li>
+            <li><strong>Ubicaciones:</strong> Exhibición, Bodega</li>
+            <li><strong>API Docs:</strong> <a href="http://localhost:8000/docs" target="_blank">Ver aquí</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '30px', textAlign: 'center' }}>
+        <p>
+          <strong>🎉 ¡Tu sistema está funcionando!</strong>
+          <br />
+          Ahora podemos continuar con la configuración completa del POS.
+        </p>
+      </div>
+    </div>
   );
 }
 
-function App() {
+// Componente para probar la API
+function TestApiComponent() {
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [codigoTest, setCodigoTest] = useState('CH-001-M-NEG');
+
+  const probarAPI = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/products/search?limit=5');
+      const data = await response.json();
+      setProductos(data.results || []);
+      console.log('Productos obtenidos:', data);
+    } catch (error) {
+      console.error('Error probando API:', error);
+      alert('Error probando API: ' + error.message);
+    }
+    setLoading(false);
+  };
+
+  const probarEscaneo = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/products/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: codigoTest })
+      });
+      const data = await response.json();
+      console.log('Resultado escaneo:', data);
+      alert(data.success ? 
+        `✅ Producto encontrado: ${data.product?.product_name}` : 
+        `❌ ${data.message}`
+      );
+    } catch (error) {
+      console.error('Error probando escaneo:', error);
+      alert('Error probando escaneo: ' + error.message);
+    }
+    setLoading(false);
+  };
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="App">
-        <AppContent />
-        
-        {/* Toast notifications */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            className: 'tablet-friendly',
-            style: {
-              fontSize: '1rem',
-              padding: '12px 16px',
-              maxWidth: '500px',
-            },
-            success: {
-              style: {
-                background: '#f0fdf4',
-                color: '#15803d',
-                border: '1px solid #bbf7d0',
-              },
-              iconTheme: {
-                primary: '#22c55e',
-                secondary: '#f0fdf4',
-              },
-            },
-            error: {
-              style: {
-                background: '#fef2f2',
-                color: '#b91c1c',
-                border: '1px solid #fecaca',
-              },
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fef2f2',
-              },
-            },
-            loading: {
-              style: {
-                background: '#f8fafc',
-                color: '#475569',
-                border: '1px solid #e2e8f0',
-              },
-            },
+    <div>
+      <button 
+        onClick={probarAPI}
+        disabled={loading}
+        style={{
+          background: '#28a745',
+          color: 'white',
+          border: 'none',
+          padding: '8px 16px',
+          borderRadius: '3px',
+          cursor: 'pointer',
+          marginRight: '10px',
+          marginBottom: '10px'
+        }}
+      >
+        {loading ? '⏳ Cargando...' : '📦 Probar Productos'}
+      </button>
+
+      <div style={{ marginBottom: '10px' }}>
+        <input 
+          type="text" 
+          value={codigoTest}
+          onChange={(e) => setCodigoTest(e.target.value)}
+          placeholder="Código a probar"
+          style={{
+            padding: '5px',
+            marginRight: '10px',
+            border: '1px solid #ddd',
+            borderRadius: '3px'
           }}
         />
-        
-        {/* Configuración React Query DevTools para desarrollo */}
-        {process.env.NODE_ENV === 'development' && (
-          <React.Suspense fallback={null}>
-            {/* React Query DevTools se cargan solo en desarrollo */}
-          </React.Suspense>
-        )}
+        <button 
+          onClick={probarEscaneo}
+          disabled={loading}
+          style={{
+            background: '#007bff',
+            color: 'white',
+            border: 'none',
+            padding: '5px 10px',
+            borderRadius: '3px',
+            cursor: 'pointer'
+          }}
+        >
+          🔍 Escanear
+        </button>
       </div>
-    </QueryClientProvider>
+
+      {productos.length > 0 && (
+        <div style={{ 
+          background: '#f8f9fa', 
+          padding: '10px', 
+          borderRadius: '3px',
+          marginTop: '10px'
+        }}>
+          <strong>Productos encontrados:</strong>
+          <ul>
+            {productos.slice(0, 3).map((producto, index) => (
+              <li key={index}>{producto.product_name} - {producto.sku}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 

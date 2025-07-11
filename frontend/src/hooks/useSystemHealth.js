@@ -1,4 +1,5 @@
 // frontend/src/hooks/useSystemHealth.js
+import React from 'react';
 import { useQuery } from 'react-query';
 import { apiService } from '../services/api';
 
@@ -64,4 +65,49 @@ export function useNetworkStatus() {
   }, []);
 
   return isOnline;
+}
+
+/**
+ * Hook para verificar la salud completa del sistema
+ * Combina conectividad de red y estado del backend
+ */
+export function useCompleteSystemHealth() {
+  const networkStatus = useNetworkStatus();
+  const { data: backendHealth, isLoading, error } = useSystemHealth();
+
+  return {
+    isOnline: networkStatus,
+    backendConnected: !error && backendHealth?.status === 'healthy',
+    backendHealth,
+    isLoading,
+    error,
+    systemStatus: networkStatus && !error && backendHealth?.status === 'healthy' ? 'healthy' : 'unhealthy'
+  };
+}
+
+/**
+ * Hook para obtener información de diagnóstico del sistema
+ */
+export function useSystemDiagnostics() {
+  return useQuery(
+    'systemDiagnostics',
+    async () => {
+      try {
+        const response = await apiService.get('/health/diagnostics');
+        return response.data;
+      } catch (error) {
+        return {
+          database: { status: 'error', error: error.message },
+          cache: { status: 'error', error: error.message },
+          api: { status: 'error', error: error.message }
+        };
+      }
+    },
+    {
+      retry: 1,
+      retryDelay: 2000,
+      refetchInterval: 60000, // Verificar cada minuto
+      staleTime: 30000,
+    }
+  );
 }
