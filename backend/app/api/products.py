@@ -391,7 +391,7 @@ async def get_product_alternatives(
 
 @router.post("/", response_model=ProductResponse)
 async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
-    """Crear nuevo producto"""
+    """Crear nuevo producto con variante e inventario inicial"""
     try:
         # Verificar que no exista un producto con el mismo código
         existing = db.query(Product).filter(
@@ -405,15 +405,70 @@ async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
                 detail="Product with this category code and internal number already exists"
             )
         
+        # Usar una sola transacción para todo el proceso
+        # Crear producto principal
         db_product = Product(**product.dict())
         db.add(db_product)
+        db.flush()  # Flush para obtener el ID sin hacer commit
+        
+        # Crear variante por defecto automáticamente
+        base_price = product.base_price if product.base_price and product.base_price > 0 else 10000
+        wholesale_price = product.wholesale_price if product.wholesale_price and product.wholesale_price > 0 else base_price * 0.8
+        
+        default_variant = ProductVariant(
+            product_id=db_product.id,
+            sku=f"{product.category_code}-{product.internal_number}-DEFAULT",
+            size="Único" if not product.requires_size else "M",
+            color="Natural" if not product.requires_color else "Estándar",
+            price=base_price,
+            cost=base_price * 0.6,  # 60% del precio como costo
+            wholesale_price=wholesale_price,
+            is_active=True,
+            min_sale_quantity=1,
+            max_sale_quantity=999
+        )
+        db.add(default_variant)
+        db.flush()  # Flush para obtener el ID de la variante
+        
+        # Buscar o crear ubicación por defecto
+        default_location = db.query(Location).filter(
+            Location.name == "Almacén Principal"
+        ).first()
+        
+        if not default_location:
+            default_location = Location(
+                name="Almacén Principal",
+                type="storage",
+                is_active=True
+            )
+            db.add(default_location)
+            db.flush()  # Flush para obtener el ID de la ubicación
+        
+        # Crear inventario inicial
+        initial_inventory = Inventory(
+            variant_id=default_variant.id,
+            location_id=default_location.id,
+            quantity=1,  # Stock inicial en 1 para que aparezca en búsquedas
+            is_active=True
+        )
+        db.add(initial_inventory)
+        
+        # Commit final de toda la transacción
         db.commit()
+        
+        # Refrescar objetos
         db.refresh(db_product)
+        db.refresh(default_variant)
         
         return db_product
         
+    except HTTPException:
+        # Re-lanzar HTTPExceptions tal como están
+        db.rollback()
+        raise
     except Exception as e:
         db.rollback()
+        print(f"Error detallado en create_product: {str(e)}")  # Para debugging
         raise HTTPException(status_code=500, detail=f"Product creation error: {str(e)}")
 
 @router.post("/{product_id}/variants", response_model=ProductVariantResponse)

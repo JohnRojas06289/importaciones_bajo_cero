@@ -58,3 +58,12 @@ async def health_check():
         "database": "connected",
         "cache": "connected"
     }
+
+@app.get("/api/health")
+async def api_health_check():
+    """Verificación de salud de la API"""
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "database": "connected"
+    }

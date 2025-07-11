@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Configuración de la API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-const MOCK_API = process.env.REACT_APP_USE_MOCK === 'true' || true; // Usar mock por defecto
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8002/api';
+const MOCK_API = false; // Deshabilitado para usar backend real
 const DEBUG_API = process.env.NODE_ENV === 'development';
 
 // Crear instancia de axios
@@ -224,18 +224,19 @@ function handleApiError(error) {
 
 // Servicio principal de API con soporte para mock
 export const apiService = {
-  // Métodos HTTP básicos con fallback a mock
+  // Métodos HTTP básicos con conexión real al backend
   async get(url, config = {}) {
     if (MOCK_API) {
       return this.mockGet(url);
     }
     try {
-      return await apiClient.get(url, config);
+      const response = await apiClient.get(url, config);
+      return response;
     } catch (error) {
       if (DEBUG_API) {
-        console.warn('API call failed, using mock data:', error.message);
+        console.error('API GET error:', error.message);
       }
-      return this.mockGet(url);
+      throw error;
     }
   },
   
@@ -244,12 +245,13 @@ export const apiService = {
       return this.mockPost(url, data);
     }
     try {
-      return await apiClient.post(url, data, config);
+      const response = await apiClient.post(url, data, config);
+      return response;
     } catch (error) {
       if (DEBUG_API) {
-        console.warn('API call failed, using mock response:', error.message);
+        console.error('API POST error:', error.message);
       }
-      return this.mockPost(url, data);
+      throw error;
     }
   },
   

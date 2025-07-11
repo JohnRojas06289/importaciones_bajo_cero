@@ -16,7 +16,7 @@ import { useScanner } from '../hooks/useScanner';
 import { useProducts } from '../hooks/useProducts';
 
 // Services
-import { salesService } from '../services/salesService';
+import { realApiService } from '../services/realApiService';
 
 // Icons
 import { 
@@ -132,12 +132,20 @@ const POS = () => {
           discount_amount: item.discount || 0
         };
 
-        const result = await salesService.createQuickSale(saleData);
+        const result = await realApiService.createSale({
+          items: [{
+            variant_id: saleData.variant_id,
+            quantity: saleData.quantity,
+            unit_price: item.price,
+            discount_amount: saleData.discount_amount
+          }],
+          payment_method: saleData.payment_method
+        });
         
-        if (result.success) {
+        if (result) {
           setLastSaleResult(result);
           clearCart();
-          toast.success(`Venta completada: $${result.sale.total_amount.toLocaleString()}`);
+          toast.success(`Venta completada: $${result.total_amount ? result.total_amount.toLocaleString() : item.price.toLocaleString()}`);
         }
       } catch (error) {
         toast.error('Error al procesar la venta');
@@ -157,7 +165,7 @@ const POS = () => {
     try {
       const saleData = {
         items: cart.map(item => ({
-          variant_id: item.variantId,
+          variant_id: item.variantId || item.id,
           quantity: item.quantity,
           unit_price: item.price,
           discount_amount: item.discount || 0
@@ -169,16 +177,14 @@ const POS = () => {
         notes: paymentData.notes
       };
 
-      const result = await salesService.createSale(saleData);
+      const result = await realApiService.createSale(saleData);
       
-      if (result.success) {
-        setLastSaleResult(result);
-        clearCart();
-        setShowPaymentModal(false);
-        toast.success(`Venta completada: $${result.total_amount.toLocaleString()}`);
-      }
+      setLastSaleResult(result);
+      clearCart();
+      setShowPaymentModal(false);
+      toast.success(`Venta completada: $${result.total_amount.toLocaleString()}`);
     } catch (error) {
-      toast.error('Error al procesar la venta');
+      toast.error('Error al procesar la venta: ' + error.message);
       console.error('Sale completion error:', error);
     } finally {
       setIsProcessingSale(false);

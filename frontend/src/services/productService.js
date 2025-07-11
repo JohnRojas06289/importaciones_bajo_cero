@@ -11,8 +11,7 @@ export const productService = {
   async scanProduct(code) {
     try {
       const response = await apiService.post('/products/scan', {
-        code: code.trim(),
-        scan_type: detectCodeType(code)
+        code: code.trim()
       });
       return response.data;
     } catch (error) {

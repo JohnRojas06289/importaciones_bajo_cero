@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
-import { apiService } from './services/api';
+import { realApiService } from './services/realApiService';
 
 // Importar páginas
 import Inventory from './pages/Inventory';
@@ -81,11 +81,11 @@ function POSSystem() {
     setIsLoading(true);
     try {
       // Cargar productos
-      const productsData = await apiService.get('/products/search');
+      const productsData = await realApiService.getProducts();
       setProducts(productsData.data.results || []);
       
       // Cargar ubicaciones
-      const locationsData = await apiService.get('/inventory/locations');
+      const locationsData = await realApiService.getLocations();
       setLocations(locationsData.data || []);
     } catch (error) {
       // Error manejado por el servicio API
@@ -102,7 +102,7 @@ function POSSystem() {
     
     setIsLoading(true);
     try {
-      const result = await apiService.post('/products/scan', { code: scannerInput });
+      const result = await realApiService.scanProduct(scannerInput);
       
       if (result.data.found && result.data.product) {
         addToCart(result.data.product);
@@ -473,20 +473,28 @@ function POSSystem() {
 
 // Componente principal App con navegación
 function App() {
-  const [backendStatus, setBackendStatus] = useState('checking');
+  const [backendStatus, setBackendStatus] = useState('connected'); // Cambiar directamente a connected
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState('pos');
 
   useEffect(() => {
-    // Verificar conectividad del backend
+    // Verificar conectividad del backend en segundo plano
     const checkBackend = async () => {
       try {
+        console.log('🔄 Iniciando verificación de backend...');
         // Intentar conectar con el backend
-        const response = await apiService.get('/health');
-        if (response.data) {
+        const response = await realApiService.healthCheck();
+        console.log('📡 Respuesta recibida:', response);
+        if (response && response.status === 'healthy') {
+          console.log('✅ Backend conectado exitosamente');
           setBackendStatus('connected');
+        } else {
+          console.log('❌ Backend no está saludable:', response);
+          setBackendStatus('error');
+          setError('El backend no está respondiendo correctamente.');
         }
       } catch (err) {
+        console.error('❌ Error al conectar con backend:', err);
         setBackendStatus('error');
         setError('No se puede conectar con el backend. Usando modo demo.');
       }

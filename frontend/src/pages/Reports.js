@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
+import { realApiService } from '../services/realApiService';
 
 const Reports = () => {
   const [reportData, setReportData] = useState({
@@ -20,7 +20,21 @@ const Reports = () => {
   const loadReportData = async () => {
     setIsLoading(true);
     try {
-      // Simular datos de reportes
+      // Obtener datos reales del backend
+      const [dashboardData, inventoryReport] = await Promise.all([
+        realApiService.getDashboardData(),
+        realApiService.getInventoryReport()
+      ]);
+      
+      setReportData({
+        salesSummary: dashboardData.sales || {},
+        topProducts: dashboardData.top_products || [],
+        inventoryAlerts: inventoryReport.alerts || [],
+        dailySales: dashboardData.daily_sales || [],
+        categoryBreakdown: dashboardData.category_breakdown || {}
+      });
+    } catch (error) {
+      // En caso de error, usar datos mock como fallback
       const mockSalesData = generateMockSalesData(parseInt(selectedPeriod));
       const mockInventoryData = generateMockInventoryData();
       
@@ -31,8 +45,6 @@ const Reports = () => {
         dailySales: mockSalesData.dailySales,
         categoryBreakdown: mockSalesData.categoryBreakdown
       });
-    } catch (error) {
-      // Error manejado por el servicio
     } finally {
       setIsLoading(false);
     }
