@@ -1,4 +1,4 @@
-# backend/app/api/products.py
+# backend/app/api/products.py - VERSIÓN CORREGIDA
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -201,11 +201,12 @@ async def search_products(
         # Obtener resultados
         variants = query_builder.distinct().limit(limit).all()
         
-        # Formatear resultados
+        # Formatear resultados - AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL
         results = []
         for variant in variants:
-            result = _format_variant_for_response(variant, db)
-            results.append(result)
+            # Convertir el objeto a diccionario
+            result_dict = _format_variant_for_response(variant, db)
+            results.append(result_dict)
         
         # Generar filtros sugeridos basados en los resultados
         suggested_filters = _generate_suggested_filters(variants)
@@ -249,8 +250,9 @@ async def ultra_fast_search(
         ).limit(limit).all()
         
         results = []
+        inventory_manager = InventoryManager(db)
+        
         for variant in variants:
-            inventory_manager = InventoryManager(db)
             inventory_info = inventory_manager.get_inventory_info(variant.id)
             
             results.append({
@@ -261,7 +263,7 @@ async def ultra_fast_search(
                 'barcode': variant.barcode,
                 'size': variant.size,
                 'color': variant.color,
-                'price': variant.price,
+                'price': float(variant.price),
                 'available_stock': inventory_info['total_available'],
                 'display_text': f"{variant.product.name} - {variant.size} - {variant.color}"
             })
@@ -338,10 +340,10 @@ async def get_product_alternatives(
         ).limit(limit).all()
         
         alternatives = []
+        inventory_manager = InventoryManager(db)
         
         # Agregar variantes del mismo producto primero
         for alt_variant in same_product_variants:
-            inventory_manager = InventoryManager(db)
             inventory_info = inventory_manager.get_inventory_info(alt_variant.id)
             
             alternatives.append({
@@ -350,7 +352,7 @@ async def get_product_alternatives(
                 'sku': alt_variant.sku,
                 'size': alt_variant.size,
                 'color': alt_variant.color,
-                'price': alt_variant.price,
+                'price': float(alt_variant.price),
                 'available_stock': inventory_info['total_available'],
                 'similarity_reason': 'same_product',
                 'priority': 1
@@ -361,7 +363,6 @@ async def get_product_alternatives(
             if len(alternatives) >= limit:
                 break
                 
-            inventory_manager = InventoryManager(db)
             inventory_info = inventory_manager.get_inventory_info(alt_variant.id)
             
             alternatives.append({
@@ -370,7 +371,7 @@ async def get_product_alternatives(
                 'sku': alt_variant.sku,
                 'size': alt_variant.size,
                 'color': alt_variant.color,
-                'price': alt_variant.price,
+                'price': float(alt_variant.price),
                 'available_stock': inventory_info['total_available'],
                 'similarity_reason': 'same_category',
                 'priority': 2
@@ -465,43 +466,44 @@ async def create_product_variant(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Variant creation error: {str(e)}")
 
-# Funciones auxiliares
-def _format_variant_for_response(variant: ProductVariant, db: Session) -> ProductSearchResult:
-    """Formatea una variante para respuesta de API"""
+# Funciones auxiliares - CORRECCIÓN PRINCIPAL AQUÍ
+def _format_variant_for_response(variant: ProductVariant, db: Session) -> dict:
+    """Formatea una variante para respuesta de API - RETORNA DICCIONARIO"""
     inventory_manager = InventoryManager(db)
     inventory_info = inventory_manager.get_inventory_info(variant.id)
     
-    return ProductSearchResult(
-        variant_id=variant.id,
-        product_name=variant.product.name,
-        variant_name=variant.full_name,
-        sku=variant.sku,
-        barcode=variant.barcode,
-        short_code=variant.short_code,
-        size=variant.size,
-        color=variant.color,
-        color_hex=variant.color_hex,
-        price=variant.price,
-        available_stock=inventory_info['total_available'],
-        total_stock=inventory_info['total_stock'],
-        locations=inventory_info['locations'],
-        is_featured=variant.is_featured
-    )
+    # Retornar diccionario plano en lugar de objeto Pydantic
+    return {
+        'variant_id': variant.id,
+        'product_name': variant.product.name,
+        'variant_name': f"{variant.product.name} - {variant.size} - {variant.color}",
+        'sku': variant.sku,
+        'barcode': variant.barcode,
+        'short_code': variant.short_code,
+        'size': variant.size,
+        'color': variant.color,
+        'color_hex': variant.color_hex,
+        'price': float(variant.price),  # Convertir a float para evitar problemas de serialización
+        'available_stock': inventory_info['total_available'],
+        'total_stock': inventory_info['total_stock'],
+        'locations': inventory_info['locations'],
+        'is_featured': variant.is_featured
+    }
 
-def _format_suggestion(suggestion: dict) -> ProductSearchResult:
-    """Formatea una sugerencia para respuesta"""
-    return ProductSearchResult(
-        variant_id=suggestion.get('variant_id', 0),
-        product_name=suggestion.get('product_name', ''),
-        variant_name=f"{suggestion.get('product_name', '')} - {suggestion.get('size', '')} - {suggestion.get('color', '')}",
-        sku=suggestion.get('sku', ''),
-        size=suggestion.get('size', ''),
-        color=suggestion.get('color', ''),
-        price=suggestion.get('price', 0),
-        available_stock=suggestion.get('available', 0),
-        total_stock=suggestion.get('available', 0),
-        locations=[]
-    )
+def _format_suggestion(suggestion: dict) -> dict:
+    """Formatea una sugerencia para respuesta - YA RETORNA DICCIONARIO"""
+    return {
+        'variant_id': suggestion.get('variant_id', 0),
+        'product_name': suggestion.get('product_name', ''),
+        'variant_name': f"{suggestion.get('product_name', '')} - {suggestion.get('size', '')} - {suggestion.get('color', '')}",
+        'sku': suggestion.get('sku', ''),
+        'size': suggestion.get('size', ''),
+        'color': suggestion.get('color', ''),
+        'price': float(suggestion.get('price', 0)),
+        'available_stock': suggestion.get('available', 0),
+        'total_stock': suggestion.get('available', 0),
+        'locations': []
+    }
 
 def _generate_suggested_filters(variants: List[ProductVariant]) -> dict:
     """Genera filtros sugeridos basados en los resultados"""
